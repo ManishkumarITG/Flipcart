@@ -3,6 +3,9 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Flipkart brand colors */
+  --color-flipkart-blue: #2874f0;
+  --color-flipkart-yellow: #ffe500;
 }
 
 html,
