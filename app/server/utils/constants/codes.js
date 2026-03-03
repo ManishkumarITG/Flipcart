@@ -8,13 +8,15 @@ export const statusCodes = {
 }
 
 export const messages = {
+    LOGOUT_SUCCESS: "User logged out successfully",
     SUCCESS: "Success",
     BAD_REQUEST: "Bad Request",
     UNAUTHORIZED: "Unauthorized",
     FORBIDDEN: "Forbidden",
     NOT_FOUND: "Not Found",
     INTERNAL_SERVER_ERROR: "Internal Server Error",
-    SIGN_UP : "user ragistration successfully"
+    SIGN_UP : "user ragistration successfully",
+    MERCHANT_CREATED: "Merchant created successfully"
 }
 
 export const errors = {

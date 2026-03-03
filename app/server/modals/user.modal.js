@@ -14,9 +14,7 @@ const schema = new mongoose.Schema({
         required: true,
     },
     phone: {
-        type: String,
-        required: true,
-        unique: true,
+        type: Number,
     },
     createdAt: {
         type: Date,
@@ -57,6 +55,11 @@ const schema = new mongoose.Schema({
     review: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Review",
+    },
+    salesData: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Merchent",
+        default: null,
     },
 });
 

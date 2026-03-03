@@ -1,5 +1,4 @@
-import { Header } from "./components/Header";
-import { Outlet } from "react-router";
+import Layout from "./components/layout";
 export function meta() {
   return [
     { title: "FlipCart - Online Shopping" },
@@ -10,7 +9,6 @@ export function meta() {
 
 export default function Index() {
   return <>
-    <Header />
-    <Outlet />
+    {/* <Layout /> */}
   </>
 }

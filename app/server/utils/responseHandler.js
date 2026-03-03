@@ -5,6 +5,7 @@ export function successResponse(data, message = "Success", status = 200, headers
     return new Response(
         JSON.stringify({
             success: true,
+            message,
             data: data,
         }),
         {

@@ -1,12 +1,20 @@
 import User from "../modals/user.modal";
-import { errors, messages, statusCodes } from "../utils/constants/codes"
-export const signup = async (name, password, email, phone) => {
+import { errors, messages } from "../utils/constants/codes"
+export const signup = async (body) => {
     try {
-        const existingUser = await User.findOne({ $or: [{ email }, { phone: phone }] });
+        const { name, email, password, phone } = body
+
+        if (!name || !password || !email) {
+            return messages.BAD_REQUEST;
+        }
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return errors.USER_ALREADY_EXISTS
         }
-        const user = await User.create({ name, password, email, phone });
+        const userPayload = { name, password, email };
+        if (phone) userPayload.phone = phone;
+
+        const user = await User.create(userPayload);
         return user.toObject();
     } catch (error) {
         console.error("Error creating user", error);
@@ -15,3 +23,27 @@ export const signup = async (name, password, email, phone) => {
 }
 
 
+export const login = async (body) => {
+    try {
+        const { email, password } = body || {};
+
+        if (!email || !password) {
+            return messages.BAD_REQUEST;
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return errors.USER_NOT_FOUND;
+        }
+        console.log("--------------------login" , user.password ,password);
+        
+        if (user.password !== password) {
+            return messages.UNAUTHORIZED;
+        }
+
+        return user.toObject();
+    } catch (error) {
+        console.error("Error logging in user", error);
+        return messages.INTERNAL_SERVER_ERROR;
+    }
+}
