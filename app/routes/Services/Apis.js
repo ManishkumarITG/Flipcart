@@ -26,7 +26,7 @@ export class API_SERVICES {
                 body: JSON.stringify(payload)
             });
             const responseData = await res.json();
-            console.log("login data==========", responseData);
+            console.log("login data========== ", responseData);
             return responseData;
         }
         catch (error) {

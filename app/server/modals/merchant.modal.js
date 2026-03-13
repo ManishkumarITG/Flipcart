@@ -6,32 +6,37 @@ const schema = new mongoose.Schema({
     },
     GST_NO: {
         type: String,
-        required: true, 
+        required: true,
     },
-    HeadOfficeAddress   : {
+    HeadOfficeAddress: {
         type: String,
-        required: true, 
+        required: true,
     },
-    OwnerName : {
+    OwnerName: {
         type: String,
-        required: true, 
+        required: true,
     },
-    OwnerPhone : {
+    OwnerPhone: {
         type: Number,
+        required: true,
+    },
+    basicInfo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Merchent",
         required: true,
     },
     createdAt: {
         type: Date,
-        default: Date.now,  
+        default: Date.now,
     },
     updatedAt: {
         type: Date,
-        default: Date.now,  
+        default: Date.now,
     },
     prefaredCOuntries: {
         type: [String],
     },
-    
+
 });
 
 const Merchent = mongoose.model("Merchent", schema);

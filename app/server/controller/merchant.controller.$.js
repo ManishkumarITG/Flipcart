@@ -4,22 +4,25 @@ import { connectDB } from "../configs/db.server"
 import { createMerchant } from "../service/merchant.service";
 import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
+import { parse } from "cookie";
 
 
 export const action = async ({ request }) => {
     await connectDB()
-    console.log("test1----------------------------------");
     try {
         const body = await request?.json();
         const url = new URL(request.url);
         const pathname = url.pathname;
         const endpoint = pathname.split("/").pop();
+
+        const cookies = parse(request.headers.get("Cookie") || "");
+        const token = cookies.token;
+        console.log("----------------------",{token});
+        
         let result = null;
-        console.log("test2----------------------------------");
         switch (endpoint) {
             case "createmerchant":
                 result = await createMerchant(body);
-                console.log("test3----------------------------------");
                 const token = jwt.sign(
                     { userId: result._id },
                     process.env.JWT_SECRET,
@@ -43,7 +46,6 @@ export const action = async ({ request }) => {
                     }
                 )
         }
-        console.log("test4----------------------------------");
 
 
         if (result === errors.USER_ALREADY_EXISTS) {

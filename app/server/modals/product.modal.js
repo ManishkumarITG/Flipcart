@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import Merchent from "./merchant.modal";
 const schema = new mongoose.Schema({
     title: {
         type: String,

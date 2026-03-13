@@ -35,7 +35,6 @@ export const login = async (body) => {
         if (!user) {
             return errors.USER_NOT_FOUND;
         }
-        console.log("--------------------login" , user.password ,password);
         
         if (user.password !== password) {
             return messages.UNAUTHORIZED;

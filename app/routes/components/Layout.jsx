@@ -14,7 +14,7 @@ export async function loader({ request }) {
 }
 
 export default function Layout() {
-  const { isAuthenticated, isMerchant } = useLoaderData();
+  const { isAuthenticated = false, isMerchant = false } = useLoaderData() || {};
 
   return (
     <>

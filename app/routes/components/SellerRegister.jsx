@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { API_SERVICES } from "../Services/Apis";
+import { useSelector } from "react-redux";
 
 const countries = [
   "India",
@@ -38,6 +39,7 @@ export default function SellerRegisterPage() {
   const [done, setDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const user = useSelector((state) => state.user.user);
   const [form, setForm] = useState({
     gstNo: "",
     brandName: "",
@@ -107,6 +109,7 @@ export default function SellerRegisterPage() {
         OwnerName: form.ownerName,
         OwnerPhone: form.ownerNumber,
         prefaredCOuntries: form.sellingCountries,
+        basicInfo: user._id
       });
 
       if (!res?.success) {
@@ -310,7 +313,7 @@ export default function SellerRegisterPage() {
               {!(step === 1 && !isAuthenticated) && (
                 <div className="flex gap-[10px]">
                   <button onClick={() => { navigate("/"); }} className="rounded px-6 py-2.5 text-sm font-semibold text-flipkart-blue bg-[#f1f3f6]">
-                      Cancel
+                    Cancel
                   </button>
                   <button
                     type="button"

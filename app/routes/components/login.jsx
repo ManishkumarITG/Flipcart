@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { API_SERVICES } from "../Services/Apis";
 import { validateEmail } from "../utils/validationMethods";
-
+import { loginUser } from "./Redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 export function meta() {
   return [
     { title: "Login - FlipCart" },
@@ -21,6 +22,7 @@ export default function Login() {
   const [responseData, setResponseData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const apiClass = new API_SERVICES();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,20 +50,23 @@ export default function Login() {
     setErrors({});
     setIsSubmitting(true);
     try {
-      const res = await apiClass.login({
-        email: emailOrPhone,
-        password,
-      });
+      const res = await dispatch(
+        loginUser({
+          email: emailOrPhone,
+          password,
+        })
+      ).unwrap();
+
       setResponseData(res);
 
       if (res?.success) {
         navigate("/");
-        // window.location.reload();
       }
+
     } catch (error) {
       setResponseData({
         success: false,
-        message: "Unable to login right now. Please try again.",
+        message: error || "Unable to login right now. Please try again.",
       });
     } finally {
       setIsSubmitting(false);

@@ -2,28 +2,25 @@ import { useMemo, useState } from "react";
 import { Link, redirect, useLoaderData } from "react-router";
 
 const categories = [
-  "Top Offers",
+  // Electronics
   "Mobiles",
-  "Electronics",
-  "TVs & Appliances",
-  "Men",
-  "Women",
-  "Baby & Kids",
-  "Home & Furniture",
-  "Sports, Books & More",
-  "Grocery",
-
-  // Electronics Sub
   "Laptops",
   "Desktop PCs",
-  "Gaming",
   "Cameras",
-  "Power Banks",
   "Headphones",
   "Smart Watches",
   "Speakers",
+  "Power Banks",
   "Printers",
   "Monitors",
+
+  // Appliances
+  "Televisions",
+  "Air Conditioners",
+  "Refrigerators",
+  "Washing Machines",
+  "Microwave Ovens",
+  "Water Purifiers",
 
   // Fashion
   "Men's Clothing",
@@ -35,20 +32,12 @@ const categories = [
   "Jewellery",
 
   // Home
-  "Kitchen Appliances",
   "Furniture",
+  "Kitchen Appliances",
   "Home Decor",
-  "Tools & Utility",
   "Lighting",
   "Mattresses",
-
-  // Appliances
-  "Air Conditioners",
-  "Refrigerators",
-  "Washing Machines",
-  "Microwave Ovens",
-  "Water Purifiers",
-  "Televisions",
+  "Tools & Utility",
 
   // Kids
   "Toys",
@@ -64,11 +53,13 @@ const categories = [
 
   // Automotive
   "Automotive Accessories",
-  "Car & Bike Accessories",
 
-  // Health
+  // Health & Beauty
   "Health & Personal Care",
-  "Beauty & Grooming"
+  "Beauty & Grooming",
+
+  // Grocery
+  "Grocery"
 ];
 const defaultVariant = () => ({
   id: Date.now() + Math.random(),
@@ -98,7 +89,9 @@ export async function loader({ request }) {
 }
 
 export default function AddProductPage() {
-  useLoaderData();
+  const data =  useLoaderData();
+  console.log("data" , data);
+  
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({

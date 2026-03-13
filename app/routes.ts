@@ -14,6 +14,7 @@ export default [
   
   //APIs
   route("api/user/*", "server/controller/user.controller.$.js"),
-  route("api/merchant/:action", "server/controller/merchant.controller.$.js")
+  route("api/merchant/:action", "server/controller/merchant.controller.$.js"),
+  route("api/product/:action", "server/controller/product.controller.$.js")
 // C:\Users\Itgeeks\Desktop\Practice\Flip-Cart-Remix\Flip-Cart-Remix\app\server\controller\merchant.controller.$.js
 ] satisfies RouteConfig;
