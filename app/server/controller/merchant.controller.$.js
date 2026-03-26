@@ -15,9 +15,13 @@ export const action = async ({ request }) => {
         const pathname = url.pathname;
         const endpoint = pathname.split("/").pop();
 
-        const cookies = parse(request.headers.get("Cookie") || "");
-        const token = cookies.token;
-        console.log("----------------------",{token});
+        const cookieHeader = request.headers.get("cookie");
+        const token = parse(cookieHeader || "");
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const userId = decoded.userId;
+        console.log("token------------------", userId);
         
         let result = null;
         switch (endpoint) {
