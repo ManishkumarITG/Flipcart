@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { API_SERVICES } from "../Services/Apis";
-import { useSelector } from "react-redux";
 
 const countries = [
   "India",
@@ -39,7 +38,6 @@ export default function SellerRegisterPage() {
   const [done, setDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const user = useSelector((state) => state.user.user);
   const [form, setForm] = useState({
     gstNo: "",
     brandName: "",
@@ -99,8 +97,8 @@ export default function SellerRegisterPage() {
       setStep((prev) => prev + 1);
       return;
     }
-
     setIsSubmitting(true);
+    
     try {
       const res = await apiClass.createMerchant({
         Brand: form.brandName,
@@ -109,9 +107,8 @@ export default function SellerRegisterPage() {
         OwnerName: form.ownerName,
         OwnerPhone: form.ownerNumber,
         prefaredCOuntries: form.sellingCountries,
-        basicInfo: user._id
       });
-
+      
       if (!res?.success) {
         setErrors((prev) => ({
           ...prev,
@@ -127,6 +124,7 @@ export default function SellerRegisterPage() {
         ...prev,
         api: "Failed to create seller account. Please try again.",
       }));
+      console.log("Error to create a merchecnt -----------", error);
     } finally {
       setIsSubmitting(false);
     }

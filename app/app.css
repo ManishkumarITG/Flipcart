@@ -10,9 +10,12 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-white text-gray-900;
+  color-scheme: light;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+input,
+textarea,
+select {
+  @apply bg-white text-gray-900 placeholder:text-gray-400;
 }

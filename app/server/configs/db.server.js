@@ -22,7 +22,6 @@ export async function connectDB() {
 
     if (!cached.promise) {
         cached.promise = mongoose.connect(MONGO_URI, {
-            dbName: "flipcart",
             bufferCommands: false,
         })
             .then((mongoose) => {

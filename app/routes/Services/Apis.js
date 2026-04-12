@@ -5,6 +5,7 @@ export class API_SERVICES {
             const res = await fetch("/api/user/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify(payload)
             });
 
@@ -23,6 +24,7 @@ export class API_SERVICES {
             const res = await fetch("/api/user/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify(payload)
             });
             const responseData = await res.json();
@@ -45,7 +47,7 @@ export class API_SERVICES {
             });
 
             const responseData = await res.json();
-            console.log("logout data==========", responseData);
+            console.log("logout data------------------", responseData);
             return responseData;
         } catch (error) {
             console.error("Error on logout API-------------", error);
@@ -54,6 +56,8 @@ export class API_SERVICES {
     }
 
     async createMerchant(payload) {
+        console.log("--------------------------------test1");
+        
         try {
             const res = await fetch("/api/merchant/createmerchant", {
                 method: "POST",
@@ -63,7 +67,7 @@ export class API_SERVICES {
             });
 
             const responseData = await res.json();
-            console.log("create merchant data==========", responseData);
+            console.log("create merchant data---------------", responseData);
             return responseData;
         } catch (error) {
             console.error("Error on createMerchant API-------------", error);

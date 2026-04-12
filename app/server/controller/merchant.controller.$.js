@@ -4,7 +4,7 @@ import { connectDB } from "../configs/db.server"
 import { createMerchant } from "../service/merchant.service";
 import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
-import { parse } from "cookie";
+import { getAuthUserFromRequest } from "../middleware/auth.server";
 
 
 export const action = async ({ request }) => {
@@ -15,18 +15,25 @@ export const action = async ({ request }) => {
         const pathname = url.pathname;
         const endpoint = pathname.split("/").pop();
 
-        const cookieHeader = request.headers.get("cookie");
-        const token = parse(cookieHeader || "");
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        const userId = decoded.userId;
-        console.log("token------------------", userId);
+        const authUser = await getAuthUserFromRequest(request);
+        if (!authUser?.userId) {
+            return errorResponse(messages.UNAUTHORIZED, statusCodes.UNAUTHORIZED);
+        }
         
         let result = null;
         switch (endpoint) {
             case "createmerchant":
-                result = await createMerchant(body);
+                result = await createMerchant({
+                    ...body,
+                    basicInfo: authUser.userId,
+                });
+                if (result === messages.BAD_REQUEST) {
+                    return errorResponse(messages.BAD_REQUEST, statusCodes.BAD_REQUEST);
+                }
+                if (result === messages.INTERNAL_SERVER_ERROR) {
+                    return errorResponse(messages.INTERNAL_SERVER_ERROR, statusCodes.INTERNAL_SERVER_ERROR);
+                }
+
                 const token = jwt.sign(
                     { userId: result._id },
                     process.env.JWT_SECRET,

@@ -56,7 +56,7 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Review",
     },
-    salesData: {
+    merchentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Merchent",
         default: null,

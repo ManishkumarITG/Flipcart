@@ -49,6 +49,7 @@ export default function Login() {
 
     setErrors({});
     setIsSubmitting(true);
+    // console.log("res-------",res);
     try {
       const res = await dispatch(
         loginUser({
@@ -56,10 +57,11 @@ export default function Login() {
           password,
         })
       ).unwrap();
-
+      console.log("res", res);
+      
       setResponseData(res);
 
-      if (res?.success) {
+      if (res?._id) {
         navigate("/");
       }
 
@@ -68,6 +70,7 @@ export default function Login() {
         success: false,
         message: error || "Unable to login right now. Please try again.",
       });
+      console.log("error on loggin---" , error)
     } finally {
       setIsSubmitting(false);
     }
