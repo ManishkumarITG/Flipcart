@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { API_SERVICES } from "../Services/Apis";
 import { validateEmail } from "../utils/validationMethods";
 import { loginUser } from "./Redux/slices/userSlice";
 import { useDispatch } from "react-redux";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 export function meta() {
   return [
     { title: "Login - FlipCart" },
@@ -21,8 +23,67 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [responseData, setResponseData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [googleError, setGoogleError] = useState("");
+  const googleButtonRef = useRef(null);
   const apiClass = new API_SERVICES();
   const dispatch = useDispatch();
+
+  const handleGoogleCredential = async (response) => {
+    if (!response?.credential) return;
+    setGoogleError("");
+    setIsSubmitting(true);
+    try {
+      const res = await apiClass.googleLogin(response.credential);
+      if (!res?.success) {
+        setGoogleError(res?.message || "Google sign-in failed.");
+        return;
+      }
+      navigate("/");
+      window.location.reload();
+    } catch (error) {
+      console.error("Google login error", error);
+      setGoogleError("Google sign-in failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return;
+
+    const init = () => {
+      if (!window.google?.accounts?.id || !googleButtonRef.current) return;
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+      });
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: "outline",
+        size: "large",
+        width: 320,
+        text: "continue_with",
+        shape: "rectangular",
+      });
+    };
+
+    if (window.google?.accounts?.id) {
+      init();
+      return;
+    }
+
+    const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (existing) {
+      existing.addEventListener("load", init, { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = init;
+    document.head.appendChild(script);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +110,6 @@ export default function Login() {
 
     setErrors({});
     setIsSubmitting(true);
-    // console.log("res-------",res);
     try {
       const res = await dispatch(
         loginUser({
@@ -198,6 +258,27 @@ export default function Login() {
             <p className="mt-4 text-center text-red-600">
               {responseData.message || "Login failed"}
             </p>
+          )}
+
+          {/* Divider */}
+          <div className="my-5 flex items-center gap-3">
+            <span className="h-px flex-1 bg-gray-200" />
+            <span className="text-xs font-medium uppercase text-gray-500">or</span>
+            <span className="h-px flex-1 bg-gray-200" />
+          </div>
+
+          {/* Google sign-in */}
+          {GOOGLE_CLIENT_ID ? (
+            <div className="flex justify-center">
+              <div ref={googleButtonRef} />
+            </div>
+          ) : (
+            <p className="text-center text-xs text-gray-500">
+              Google sign-in is not configured.
+            </p>
+          )}
+          {googleError && (
+            <p className="mt-2 text-center text-sm text-red-600">{googleError}</p>
           )}
 
           {/* OTP toggle */}

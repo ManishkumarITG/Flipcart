@@ -1,4 +1,4 @@
-import { login, signup } from "../service/user.service";
+import { googleAuth, login, signup } from "../service/user.service";
 import { errorResponse, successResponse } from "../utils/responseHandler";
 import { errors, messages, statusCodes } from "../utils/constants/codes";
 import { connectDB } from "../configs/db.server";
@@ -24,30 +24,9 @@ export const action = async ({ request }) => {
         break;
       case "login":
         result = await login(body);
-        return successResponse(
-          "",
-          messages.LOGOUT_SUCCESS,
-          statusCodes.SUCCESS,
-          {
-            "Set-Cookie": [
-              serialize("token", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 0,
-                path: "/",
-              }),
-              serialize("merchant", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 0,
-                path: "/",
-              }),
-            ],
-          },
-        );
-
+        break;
+      case "google":
+        result = await googleAuth(body);
         break;
       case "logout":
         return successResponse(
@@ -80,7 +59,7 @@ export const action = async ({ request }) => {
     }
     if (result === messages.INTERNAL_SERVER_ERROR) {
       return errorResponse(
-        errors.INTERNAL_SERVER_ERROR,
+        messages.INTERNAL_SERVER_ERROR,
         statusCodes.INTERNAL_SERVER_ERROR,
       );
     }
@@ -98,6 +77,10 @@ export const action = async ({ request }) => {
       );
     }
 
+    if (!result || !result._id) {
+      return errorResponse(messages.NOT_FOUND, statusCodes.NOT_FOUND);
+    }
+
     const token = jwt.sign({ userId: result._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -106,11 +89,14 @@ export const action = async ({ request }) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 3, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
 
-    return successResponse(result, messages.SIGN_UP, statusCodes.SUCCESS, {
+    const successMessage =
+      endpoint === "signup" ? messages.SIGN_UP : errors.USER_LOGIN_SUCCESSFULLY;
+
+    return successResponse(result, successMessage, statusCodes.SUCCESS, {
       "Set-Cookie": cookie,
       "Content-Type": "application/json",
     });

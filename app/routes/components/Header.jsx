@@ -118,10 +118,10 @@ export function Header({ isAuthenticated = false, isMerchant = false }) {
               {/* Become a Seller - desktop */}
               {isMerchant ? (
                 <Link
-                  to="/add-product"
+                  to="/merchant"
                   className="hidden md:flex items-center px-3 py-1.5 hover:bg-white/10 rounded text-sm"
                 >
-                  Add Product
+                  Seller Hub
                 </Link>
               ) : (
                 <Link
@@ -221,8 +221,8 @@ export function Header({ isAuthenticated = false, isMerchant = false }) {
                   </Link>
                 )}
                 {isMerchant ? (
-                  <Link to="/add-product" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
-                    Add Product
+                  <Link to="/merchant" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>
+                    Seller Hub
                   </Link>
                 ) : (
                   <Link to="/sell/register" className="block px-3 py-2 text-gray-700" onClick={() => setMobileMenuOpen(false)}>

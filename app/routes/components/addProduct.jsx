@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, redirect, useLoaderData } from "react-router";
+import { API_SERVICES } from "../Services/Apis";
 
 const categories = [
   // Electronics
@@ -90,10 +91,11 @@ export async function loader({ request }) {
 
 export default function AddProductPage() {
   const data =  useLoaderData();
-  console.log("data" , data);
-  
+  const apiClass = useMemo(() => new API_SERVICES(), []);
+
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -153,7 +155,7 @@ export default function AddProductPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const nextErrors = {};
 
@@ -180,16 +182,61 @@ export default function AddProductPage() {
     }
 
     setErrors({});
-    setShowSuccess(true);
+    setIsSubmitting(true);
+
+    try {
+      const payload = new FormData();
+      payload.append("title", formData.title.trim());
+      payload.append("description", formData.description.trim());
+      payload.append("price", String(formData.price));
+      payload.append("category", formData.category);
+      if (formData.discount) payload.append("discount", String(formData.discount));
+
+      formData.images.forEach((file) => payload.append("images", file));
+
+      const variantsMeta = formData.variants.map((v) => ({
+        name: v.name.trim(),
+        value: v.value.trim(),
+      }));
+      payload.append("variants", JSON.stringify(variantsMeta));
+
+      formData.variants.forEach((variant, idx) => {
+        (variant.images || []).forEach((file) => {
+          payload.append(`variantImages_${idx}`, file);
+        });
+      });
+
+      const res = await apiClass.createProduct(payload);
+
+      if (!res?.success) {
+        setErrors({ api: res?.message || "Failed to create product." });
+        return;
+      }
+
+      setShowSuccess(true);
+      setFormData({
+        title: "",
+        description: "",
+        price: "",
+        category: "",
+        discount: "",
+        images: [],
+        variants: [defaultVariant()],
+      });
+    } catch (error) {
+      console.error("Create product failed", error);
+      setErrors({ api: "Network error. Please try again." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <main className="min-h-[calc(100vh-120px)] bg-[#f1f3f6] px-4 py-10">
-      <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 sm:p-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Add Product</h1>
-          <p className="mt-1 text-sm text-gray-600">Fill all details to publish your product listing.</p>
-        </div>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Add Product</h1>
+        <p className="mt-1 text-sm text-gray-600">Fill all details to publish your product listing.</p>
+      </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -337,18 +384,19 @@ export default function AddProductPage() {
           </section>
 
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Link to="/" className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <Link to="/merchant/products" className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
               Cancel
             </Link>
             <button
               type="submit"
-              className="rounded bg-flipkart-yellow px-5 py-2 text-sm font-semibold text-flipkart-blue hover:bg-[#f6de00]"
+              disabled={isSubmitting}
+              className="rounded bg-flipkart-yellow px-5 py-2 text-sm font-semibold text-flipkart-blue hover:bg-[#f6de00] disabled:opacity-60"
             >
-              Save Product
+              {isSubmitting ? "Saving..." : "Save Product"}
             </button>
           </div>
+          {errors.api && <p className="text-sm text-red-600">{errors.api}</p>}
         </form>
-      </div>
 
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -368,6 +416,6 @@ export default function AddProductPage() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

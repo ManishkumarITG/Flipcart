@@ -34,11 +34,11 @@ export const createMerchant = async (data) => {
     };
 
     const user = await Merchent.create(userPayload);
-    
+
     if (user) {
-      const setAdmin = await User.updateOne(
-        { _id: id }, // filter (which user)
-        { $set: { isAdmin: true } }, // update
+      await User.updateOne(
+        { _id: basicInfo },
+        { $set: { merchentId: user._id } },
       );
     }
     return user.toObject();

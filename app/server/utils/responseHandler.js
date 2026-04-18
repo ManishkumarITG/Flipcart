@@ -15,17 +15,17 @@ export function successResponse(data, message = "Success", status = 200, headers
     );
 }
 
-export function errorResponse(message = "Something went wrong", status = 500, header = {
+export function errorResponse(message = "Something went wrong", status = 500, headers = {
     "Content-Type": "application/json",
 }) {
     return new Response(
         JSON.stringify({
             success: false,
             message,
-        },
-            {
-                status,
-                header
-            })
+        }),
+        {
+            status,
+            headers,
+        }
     );
 }

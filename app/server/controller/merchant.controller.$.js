@@ -43,7 +43,7 @@ export const action = async ({ request }) => {
                 const cookie = serialize("merchant", token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
-                    maxAge: 60 * 60 * 24 * 3, // 7 days
+                    maxAge: 60 * 60 * 24 * 7,
                     sameSite: "lax",
                     path: "/",
                 });
@@ -71,7 +71,7 @@ export const action = async ({ request }) => {
         if (result === messages.INTERNAL_SERVER_ERROR) {
             return errorResponse(messages.INTERNAL_SERVER_ERROR, statusCodes.INTERNAL_SERVER_ERROR)
         }
-        return successResponse(result, statusCodes.OK)
+        return successResponse(result, messages.SUCCESS, statusCodes.SUCCESS)
     } catch (error) {
         console.log(messages.INTERNAL_SERVER_ERROR, statusCodes.INTERNAL_SERVER_ERROR, error);
         return errorResponse(messages.INTERNAL_SERVER_ERROR, statusCodes.INTERNAL_SERVER_ERROR)

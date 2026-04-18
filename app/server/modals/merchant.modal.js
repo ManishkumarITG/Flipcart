@@ -22,7 +22,7 @@ const schema = new mongoose.Schema({
     },
     basicInfo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Merchent",
+        ref: "User",
         required: true,
     },
     createdAt: {

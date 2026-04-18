@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.jsx$\")",
+      "Bash(node --check app/server/service/product.service.js)",
+      "Bash(node --check app/server/modals/product.modal.js)",
+      "Bash(node --check app/routes/components/merchant/MerchantProductEdit.jsx)",
+      "Bash(node --check app/server/utils/serialize.js)"
+    ]
+  }
+}
