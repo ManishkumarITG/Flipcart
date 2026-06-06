@@ -3,7 +3,10 @@ import dns from "node:dns";
 
 // The local router's IPv6 DNS doesn't answer SRV queries, which breaks
 // mongodb+srv:// lookups — use public resolvers for Node's DNS instead.
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
+// Only needed locally; production (Vercel) has working DNS.
+if (process.env.NODE_ENV !== "production") {
+    dns.setServers(["8.8.8.8", "1.1.1.1"]);
+}
 
 const MONGO_URI = process.env.DB_URL;
 
