@@ -18,6 +18,7 @@ const navItems = [
   { to: "/merchant/products", label: "My Products" },
   { to: "/merchant/add-product", label: "Add Product" },
   { to: "/merchant/orders", label: "Orders" },
+  { to: "/merchant/payments", label: "Payments" },
 ];
 
 export default function MerchantLayout() {

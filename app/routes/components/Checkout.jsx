@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,6 +8,10 @@ import {
   selectCartTotal,
   updateQuantity,
 } from "./Redux/slices/cartSlice";
+import { API_SERVICES } from "../Services/Apis";
+import PhonePeQrModal from "./PhonePeQrModal";
+
+const api = new API_SERVICES();
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='100%' height='100%' fill='%23f1f3f6'/></svg>";
@@ -28,11 +33,37 @@ export default function Checkout() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handlePlaceOrder = () => {
-    if (!items.length) return;
+  const [qrOrder, setQrOrder] = useState(null);
+  const [paying, setPaying] = useState(false);
+  const [error, setError] = useState("");
+
+  // Place Order -> create an order-specific PhonePe Dynamic QR for the cart.
+  // (One order == one seller; mixed-seller carts are rejected by the backend.)
+  const handlePlaceOrder = async () => {
+    if (!items.length || paying) return;
+    setError("");
+    setPaying(true);
+    try {
+      const payloadItems = items.map((i) => ({
+        productId: i.productId,
+        quantity: i.quantity,
+        variant: i.variant || null,
+      }));
+      const res = await api.createPaymentQr(payloadItems);
+      if (res?.success && res.data) {
+        setQrOrder(res.data);
+      } else {
+        setError(res?.message || "Could not start payment.");
+      }
+    } catch {
+      setError("Could not start payment. Please try again.");
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const handlePaid = () => {
     dispatch(clearCart());
-    window.alert("Order placed! (demo)");
-    navigate("/");
   };
 
   if (!items.length) {
@@ -178,10 +209,12 @@ export default function Checkout() {
             <button
               type="button"
               onClick={handlePlaceOrder}
-              className="mt-4 w-full rounded bg-[#fb641b] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#e95913]"
+              disabled={paying}
+              className="mt-4 w-full rounded bg-[#fb641b] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#e95913] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Place Order
+              {paying ? "Starting payment…" : "Place Order"}
             </button>
+            {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
             <Link
               to="/"
               className="mt-2 block text-center text-xs font-semibold text-flipkart-blue hover:underline"
@@ -191,6 +224,14 @@ export default function Checkout() {
           </div>
         </aside>
       </div>
+
+      {qrOrder && (
+        <PhonePeQrModal
+          order={qrOrder}
+          onClose={() => setQrOrder(null)}
+          onPaid={handlePaid}
+        />
+      )}
     </div>
   );
 }

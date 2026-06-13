@@ -16,6 +16,7 @@ export default [
       route("merchant/products/:id/edit", "routes/components/merchant/MerchantProductEdit.jsx"),
       route("merchant/add-product", "routes/components/addProduct.jsx"),
       route("merchant/orders", "routes/components/merchant/MerchantOrders.jsx"),
+      route("merchant/payments", "routes/components/merchant/MerchantPayments.jsx"),
     ]),
   ]),
 
@@ -23,4 +24,5 @@ export default [
   route("api/user/*", "server/controller/user.controller.$.js"),
   route("api/merchant/:action", "server/controller/merchant.controller.$.js"),
   route("api/product/:action", "server/controller/product.controller.$.js"),
+  route("api/payment/*", "server/controller/payment.controller.$.js"),
 ] satisfies RouteConfig;

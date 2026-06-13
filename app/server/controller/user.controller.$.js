@@ -1,4 +1,4 @@
-import { googleAuth, login, signup } from "../service/user.service";
+import { googleAuth, login, sendSignupOtp, signup } from "../service/user.service";
 import { errorResponse, successResponse } from "../utils/responseHandler";
 import { errors, messages, statusCodes } from "../utils/constants/codes";
 import { connectDB } from "../configs/db.server";
@@ -19,7 +19,17 @@ export const action = async ({ request }) => {
     const endpoint = pathname.split("/").pop();
     let result = null;
     switch (endpoint) {
+      case "send-otp": {
+        // Step 1 of sign-up: email an OTP. No user/JWT yet.
+        const otpResult = await sendSignupOtp(body);
+        if (otpResult === messages.OTP_SENT) {
+          return successResponse(null, messages.OTP_SENT, statusCodes.SUCCESS);
+        }
+        result = otpResult; // fall through to shared error mapping below
+        break;
+      }
       case "signup":
+        // Step 2 of sign-up: verify the OTP, then create the user.
         result = await signup(body);
         break;
       case "login":
@@ -74,6 +84,24 @@ export const action = async ({ request }) => {
       return errorResponse(
         "Password or email may be wrong",
         statusCodes.UNAUTHORIZED,
+      );
+    }
+
+    // OTP / email-verification sentinels (sign-up flow).
+    const otpBadRequestErrors = [
+      errors.OTP_REQUIRED,
+      errors.OTP_INVALID,
+      errors.OTP_EXPIRED,
+      errors.OTP_NOT_FOUND,
+      errors.OTP_TOO_MANY_ATTEMPTS,
+    ];
+    if (otpBadRequestErrors.includes(result)) {
+      return errorResponse(result, statusCodes.BAD_REQUEST);
+    }
+    if (result === errors.EMAIL_SEND_FAILED) {
+      return errorResponse(
+        errors.EMAIL_SEND_FAILED,
+        statusCodes.INTERNAL_SERVER_ERROR,
       );
     }
 

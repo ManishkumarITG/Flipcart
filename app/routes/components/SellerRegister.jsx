@@ -45,13 +45,19 @@ export default function SellerRegisterPage() {
     ownerName: "",
     ownerNumber: "",
     sellingCountries: [],
+    // PhonePe payment details (collected in step 3, editable later in Seller Hub → Payments)
+    paymentEnabled: false,
+    phonepeMerchantId: "",
+    phonepeStoreId: "",
+    phonepeTerminalId: "",
+    phonepeProviderId: "",
   });
 
   const progress = useMemo(() => `${Math.min(step, 3)} / 3`, [step]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -84,8 +90,21 @@ export default function SellerRegisterPage() {
       }
     }
 
-    if (step === 3 && form.sellingCountries.length === 0) {
-      nextErrors.sellingCountries = "Select at least one country.";
+    if (step === 3) {
+      if (form.sellingCountries.length === 0) {
+        nextErrors.sellingCountries = "Select at least one country.";
+      }
+      // PhonePe fields are optional, but if payments are enabled the core
+      // identifiers must be present (they can also be set later from the
+      // Seller Hub → Payments page).
+      if (form.paymentEnabled) {
+        if (!form.phonepeMerchantId.trim())
+          nextErrors.phonepeMerchantId = "Merchant ID is required to enable payments.";
+        if (!form.phonepeStoreId.trim())
+          nextErrors.phonepeStoreId = "Store ID is required to enable payments.";
+        if (!form.phonepeTerminalId.trim())
+          nextErrors.phonepeTerminalId = "Terminal ID is required to enable payments.";
+      }
     }
 
     if (Object.keys(nextErrors).length) {
@@ -107,6 +126,12 @@ export default function SellerRegisterPage() {
         OwnerName: form.ownerName,
         OwnerPhone: form.ownerNumber,
         prefaredCOuntries: form.sellingCountries,
+        // PhonePe payment details (optional at onboarding).
+        paymentEnabled: form.paymentEnabled,
+        phonepeMerchantId: form.phonepeMerchantId,
+        phonepeStoreId: form.phonepeStoreId,
+        phonepeTerminalId: form.phonepeTerminalId,
+        phonepeProviderId: form.phonepeProviderId,
       });
       
       if (!res?.success) {
@@ -296,6 +321,98 @@ export default function SellerRegisterPage() {
                   ))}
                 </div>
                 {errors.sellingCountries && <p className="mt-2 text-sm text-red-600">{errors.sellingCountries}</p>}
+
+                {/* PhonePe payment information */}
+                <div className="mt-8 border-t border-gray-100 pt-6">
+                  <h3 className="text-base font-semibold text-gray-900">
+                    Payment Information (PhonePe)
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Add your PhonePe details to accept UPI payments. You can skip
+                    this now and set it up later from your seller dashboard.
+                  </p>
+
+                  <label className="mt-4 flex items-center gap-3 text-sm font-medium text-gray-700">
+                    <input
+                      type="checkbox"
+                      name="paymentEnabled"
+                      checked={form.paymentEnabled}
+                      onChange={handleChange}
+                      className="h-4 w-4 accent-flipkart-blue"
+                    />
+                    Enable PhonePe payments for my store
+                  </label>
+
+                  {form.paymentEnabled && (
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-1">
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          PhonePe Merchant ID
+                        </label>
+                        <input
+                          name="phonepeMerchantId"
+                          value={form.phonepeMerchantId}
+                          onChange={handleChange}
+                          placeholder="PGTESTPAYUAT"
+                          className="w-full rounded border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-flipkart-blue focus:ring-2 focus:ring-blue-100"
+                        />
+                        {errors.phonepeMerchantId && (
+                          <p className="mt-1 text-sm text-red-600">{errors.phonepeMerchantId}</p>
+                        )}
+                      </div>
+
+                      <div className="sm:col-span-1">
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Store ID
+                        </label>
+                        <input
+                          name="phonepeStoreId"
+                          value={form.phonepeStoreId}
+                          onChange={handleChange}
+                          placeholder="STORE001"
+                          className="w-full rounded border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-flipkart-blue focus:ring-2 focus:ring-blue-100"
+                        />
+                        {errors.phonepeStoreId && (
+                          <p className="mt-1 text-sm text-red-600">{errors.phonepeStoreId}</p>
+                        )}
+                      </div>
+
+                      <div className="sm:col-span-1">
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Terminal ID
+                        </label>
+                        <input
+                          name="phonepeTerminalId"
+                          value={form.phonepeTerminalId}
+                          onChange={handleChange}
+                          placeholder="TERMINAL001"
+                          className="w-full rounded border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-flipkart-blue focus:ring-2 focus:ring-blue-100"
+                        />
+                        {errors.phonepeTerminalId && (
+                          <p className="mt-1 text-sm text-red-600">{errors.phonepeTerminalId}</p>
+                        )}
+                      </div>
+
+                      <div className="sm:col-span-1">
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Provider ID (optional)
+                        </label>
+                        <input
+                          name="phonepeProviderId"
+                          value={form.phonepeProviderId}
+                          onChange={handleChange}
+                          placeholder="Leave blank if not provided"
+                          className="w-full rounded border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-flipkart-blue focus:ring-2 focus:ring-blue-100"
+                        />
+                      </div>
+
+                      <p className="sm:col-span-2 text-xs text-gray-400">
+                        Your PhonePe salt key stays securely on the server and is
+                        never entered here.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

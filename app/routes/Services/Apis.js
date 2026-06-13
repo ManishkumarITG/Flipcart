@@ -1,5 +1,23 @@
 export class API_SERVICES {
 
+    // Step 1 of sign-up: emails an OTP to the user. payload = { name, email, password }
+    async sendSignupOtp(payload) {
+        try {
+            const res = await fetch("/api/user/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        }
+        catch (error) {
+            console.error("Error on sendSignupOtp API-------------", error);
+            throw error;
+        }
+    }
+
+    // Step 2 of sign-up: verifies the OTP and creates the account. payload = { email, otp }
     async sign_up(payload) {
         try {
             const res = await fetch("/api/user/signup", {
@@ -115,7 +133,7 @@ export class API_SERVICES {
 
     async createMerchant(payload) {
         console.log("--------------------------------test1");
-        
+
         try {
             const res = await fetch("/api/merchant/createmerchant", {
                 method: "POST",
@@ -129,6 +147,84 @@ export class API_SERVICES {
             return responseData;
         } catch (error) {
             console.error("Error on createMerchant API-------------", error);
+            throw error;
+        }
+    }
+
+    // ---- PhonePe payment APIs ----
+
+    // Save/update the authenticated merchant's PhonePe details.
+    async savePhonePeSettings(payload) {
+        try {
+            const res = await fetch("/api/merchant/payment-setup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(payload),
+            });
+            return await res.json();
+        } catch (error) {
+            console.error("Error on savePhonePeSettings API-------------", error);
+            throw error;
+        }
+    }
+
+    // Read current PhonePe settings for the authenticated merchant.
+    async getPhonePeSettings() {
+        try {
+            const res = await fetch("/api/merchant/payment-setup", {
+                method: "GET",
+                credentials: "include",
+            });
+            return await res.json();
+        } catch (error) {
+            console.error("Error on getPhonePeSettings API-------------", error);
+            throw error;
+        }
+    }
+
+    // Paginated merchant payment history.
+    async getMerchantPayments({ page = 1, limit = 10, status } = {}) {
+        try {
+            const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+            if (status) params.set("status", status);
+            const res = await fetch(`/api/merchant/payments?${params.toString()}`, {
+                method: "GET",
+                credentials: "include",
+            });
+            return await res.json();
+        } catch (error) {
+            console.error("Error on getMerchantPayments API-------------", error);
+            throw error;
+        }
+    }
+
+    // Create an order-specific PhonePe Dynamic QR. `items` = [{ productId, quantity, variant }].
+    async createPaymentQr(items) {
+        try {
+            const res = await fetch("/api/payment/phonepe/create-qr", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ items }),
+            });
+            return await res.json();
+        } catch (error) {
+            console.error("Error on createPaymentQr API-------------", error);
+            throw error;
+        }
+    }
+
+    // Poll the payment status for an order (used while the QR modal is open).
+    async getPaymentStatus(orderId) {
+        try {
+            const res = await fetch(`/api/payment/status/${encodeURIComponent(orderId)}`, {
+                method: "GET",
+                credentials: "include",
+            });
+            return await res.json();
+        } catch (error) {
+            console.error("Error on getPaymentStatus API-------------", error);
             throw error;
         }
     }

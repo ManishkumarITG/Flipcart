@@ -37,8 +37,40 @@ const schema = new mongoose.Schema({
         type: [String],
     },
 
+    // ---- PhonePe Dynamic QR payment setup ----
+    phonepeMerchantId: {
+        type: String,
+        default: "",
+    },
+    phonepeStoreId: {
+        type: String,
+        default: "",
+    },
+    phonepeTerminalId: {
+        type: String,
+        default: "",
+    },
+    phonepeProviderId: {
+        type: String,
+        default: "",
+    },
+    phonepeOnboardingStatus: {
+        type: String,
+        enum: ["NOT_STARTED", "PENDING", "ACTIVE", "REJECTED"],
+        default: "NOT_STARTED",
+    },
+    paymentEnabled: {
+        type: Boolean,
+        default: false,
+    },
+    // Running settled balance (in INR), credited on each successful payment.
+    balance: {
+        type: Number,
+        default: 0,
+    },
+
 });
 
-const Merchent = mongoose.model("Merchent", schema);
+const Merchent = mongoose.models.Merchent || mongoose.model("Merchent", schema);
 
 export default Merchent;

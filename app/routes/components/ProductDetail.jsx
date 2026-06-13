@@ -5,6 +5,10 @@ import { connectDB } from "../../server/configs/db.server";
 import { getPublicProductById } from "../../server/service/product.service";
 import { messages } from "../../server/utils/constants/codes";
 import { addToCart } from "./Redux/slices/cartSlice";
+import { API_SERVICES } from "../Services/Apis";
+import PhonePeQrModal from "./PhonePeQrModal";
+
+const api = new API_SERVICES();
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><rect width='100%' height='100%' fill='%23f1f3f6'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23a0a0a0' font-family='sans-serif' font-size='22'>No image</text></svg>";
@@ -50,6 +54,8 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [flash, setFlash] = useState("");
+  const [qrOrder, setQrOrder] = useState(null);
+  const [paying, setPaying] = useState(false);
 
   const activeVariant =
     selectedVariantIdx >= 0 ? variants[selectedVariantIdx] : null;
@@ -89,10 +95,30 @@ export default function ProductDetail() {
     showFlash("Added to cart");
   };
 
-  const handleBuyNow = () => {
-    if (!inStock) return;
-    dispatch(addToCart(buildPayload()));
-    navigate("/checkout");
+  // Buy Now -> create an order-specific PhonePe Dynamic QR and open the modal.
+  const handleBuyNow = async () => {
+    if (!inStock || paying) return;
+    setPaying(true);
+    try {
+      const res = await api.createPaymentQr([
+        {
+          productId: product._id,
+          quantity,
+          variant: activeVariant
+            ? { name: activeVariant.name, value: activeVariant.value }
+            : null,
+        },
+      ]);
+      if (res?.success && res.data) {
+        setQrOrder(res.data);
+      } else {
+        showFlash(res?.message || "Could not start payment.");
+      }
+    } catch {
+      showFlash("Could not start payment. Please try again.");
+    } finally {
+      setPaying(false);
+    }
   };
 
   return (
@@ -154,10 +180,10 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  disabled={!inStock}
+                  disabled={!inStock || paying}
                   className="flex-1 rounded bg-[#fb641b] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#e95913] disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
                 >
-                  Buy Now
+                  {paying ? "Starting…" : "Buy Now"}
                 </button>
               </div>
 
@@ -278,6 +304,14 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {qrOrder && (
+        <PhonePeQrModal
+          order={qrOrder}
+          onClose={() => setQrOrder(null)}
+          onPaid={() => showFlash("Payment successful!")}
+        />
+      )}
     </div>
   );
 }

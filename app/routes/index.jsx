@@ -11,9 +11,14 @@ export function meta() {
 }
 
 export async function loader() {
-  await connectDB();
-  const products = await getRandomProducts(4);
-  return { products: Array.isArray(products) ? products : [] };
+  try {
+    await connectDB();
+    const products = await getRandomProducts(4);
+    return { products: Array.isArray(products) ? products : [] };
+  } catch (err) {
+    console.error("Home loader failed to load products:", err.message);
+    return { products: [] };
+  }
 }
 
 export default function Index() {
