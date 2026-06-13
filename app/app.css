@@ -19,3 +19,36 @@ textarea,
 select {
   @apply bg-white text-gray-900 placeholder:text-gray-400;
 }
+
+
+/* # DB_URL="mongodb+srv://pushpakumawat_db_user:T6MfluO6CFt2l2IZ@cluster0.dcqw5io.mongodb.net/Flipcart?retryWrites=true&w=majority&appName=Cluster0"
+JWT_SECRET=1q2w3e4r5t6y7u8i9o0pp0o9i8u7y6t5r4e3w2q11q2w3e4r5t6y7u8i9o0pp0o9i8u7y6t5r4e3w2w2q1
+DB_URL=mongodb+srv://manish_7771:manish_7771@manish.juwiizf.mongodb.net/Flipcarrt
+
+CLOUD_NAME=dhneigjnu
+CLOUD_API_KEY=328932262431446
+CLOUD_API_SECRET=v882nWhHiZf51DC8VadxKlsbEnU
+
+# ---- PhonePe Dynamic QR ----
+# sandbox | production  (controls the default base URL)
+PHONEPE_ENV=sandbox
+# Leave blank to auto-pick the sandbox/production host, or override explicitly.
+PHONEPE_BASE_URL=
+# Platform/aggregator salt issued by PhonePe. NEVER expose to the frontend.
+PHONEPE_SALT_KEY=test-salt-key-replace-me
+PHONEPE_SALT_INDEX=1
+# Public, server-to-server URL PhonePe POSTs payment results to.
+PHONEPE_CALLBACK_URL=http://localhost:5173/api/payment/phonepe/callback
+# Optional aggregator provider id (only some PhonePe products require it).
+PHONEPE_PROVIDER_ID=
+PHONEPE_QR_EXPIRY_SECONDS=300
+
+# ---- Email OTP (sign-up verification via nodemailer) ----
+# For Gmail: enable 2-Step Verification, then create an App Password
+# (Google Account -> Security -> App passwords) and paste it as SMTP_PASS.
+# Do NOT use your normal Gmail password.
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=flipccart@gmail.com
+SMTP_PASS=BOSS@2007
+SMTP_FROM=FlipCart <flipccart@gmail.com> */
